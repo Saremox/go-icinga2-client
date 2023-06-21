@@ -86,6 +86,7 @@ type MockClient struct {
 	Actions    map[string][]Action
 	mutex      sync.Mutex
 	URL        string
+	Templates  []string
 }
 
 type Vars map[string]interface{}
@@ -128,6 +129,7 @@ func NewMockClient() (c *MockClient) {
 	c.Services = make(map[string]Service)
 	c.Actions = make(map[string][]Action)
 	c.mutex = sync.Mutex{}
+	c.Templates = []string{}
 	return
 }
 

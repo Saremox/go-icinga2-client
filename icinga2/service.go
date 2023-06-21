@@ -6,22 +6,23 @@ import (
 )
 
 type Service struct {
-	Name               string  `json:"name,omitempty"`
-	DisplayName        string  `json:"display_name"`
-	HostName           string  `json:"host_name"`
-	CheckCommand       string  `json:"check_command"`
-	EnableActiveChecks bool    `json:"enable_active_checks"`
-	Notes              string  `json:"notes"`
-	NotesURL           string  `json:"notes_url"`
-	ActionURL          string  `json:"action_url"`
-	Vars               Vars    `json:"vars"`
-	Zone               string  `json:"zone,omitempty"`
-	CheckInterval      float64 `json:"check_interval"`
-	RetryInterval      float64 `json:"retry_interval"`
-	MaxCheckAttempts   float64 `json:"max_check_attempts"`
-	CheckPeriod        string  `json:"check_period,omitempty"`
-	State              float64 `json:"state,omitempty"`
-	LastStateChange    float64 `json:"last_state_change,omitempty"`
+	Name               string   `json:"name,omitempty"`
+	DisplayName        string   `json:"display_name"`
+	HostName           string   `json:"host_name"`
+	CheckCommand       string   `json:"check_command"`
+	EnableActiveChecks bool     `json:"enable_active_checks"`
+	Notes              string   `json:"notes"`
+	NotesURL           string   `json:"notes_url"`
+	ActionURL          string   `json:"action_url"`
+	Vars               Vars     `json:"vars,omitempty"`
+	Zone               string   `json:"zone,omitempty"`
+	CheckInterval      float64  `json:"check_interval"`
+	RetryInterval      float64  `json:"retry_interval"`
+	MaxCheckAttempts   float64  `json:"max_check_attempts"`
+	CheckPeriod        string   `json:"check_period,omitempty"`
+	State              float64  `json:"state,omitempty"`
+	LastStateChange    float64  `json:"last_state_change,omitempty"`
+	Templates          []string `json:"templates,omitempty"`
 }
 
 type ServiceResults struct {
@@ -68,10 +69,11 @@ func (s *WebClient) GetService(name string) (Service, error) {
 }
 
 func (s *WebClient) CreateService(service Service) error {
-	serviceCreate := ServiceCreate{Templates: []string{"generic-service"}, Attrs: service}
+	serviceCreate := ServiceCreate{Templates: service.Templates, Attrs: service}
 	// Strip "name" from create payload
 	serviceCreate.Attrs.Name = ""
 	err := s.CreateObject("/services/"+service.FullName(), serviceCreate)
+
 	return err
 }
 
