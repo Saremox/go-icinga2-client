@@ -1,4 +1,4 @@
-module github.com/Saremox/go-icinga2-client
+module github.com/saremox/go-icinga2-client
 
 go 1.24.3
 
