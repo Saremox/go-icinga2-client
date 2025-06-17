@@ -63,7 +63,7 @@ func (s *WebClient) GetService(name string) (Service, error) {
 		return Service{}, err
 	}
 	if resp.HttpResponse().StatusCode != 200 {
-		return Service{}, fmt.Errorf("Did not get 200 OK")
+		return Service{}, fmt.Errorf("did not get 200 OK")
 	}
 	return serviceResults.Results[0].Service, nil
 }
@@ -86,7 +86,7 @@ func (s *WebClient) ListServices(query QueryFilter) (services []Service, err err
 		return
 	}
 	if resp.HttpResponse().StatusCode != 200 {
-		return []Service{}, fmt.Errorf("Did not get 200 OK")
+		return []Service{}, fmt.Errorf("did not get 200 OK")
 	}
 	for _, result := range serviceResults.Results {
 		if s.Zone == "" || s.Zone == result.Service.Zone {

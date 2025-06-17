@@ -53,7 +53,7 @@ func (s *WebClient) GetHost(name string) (Host, error) {
 		return Host{}, err
 	}
 	if resp.HttpResponse().StatusCode != 200 {
-		return Host{}, fmt.Errorf("Did not get 200 OK")
+		return Host{}, fmt.Errorf("did not get 200 OK")
 	}
 	return hostResults.Results[0].Host, nil
 }

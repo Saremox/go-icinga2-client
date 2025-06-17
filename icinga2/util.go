@@ -38,8 +38,8 @@ func Flatten(m map[string]interface{}) map[string]interface{} {
 	for k, v := range m {
 		switch child := v.(type) {
 		case map[string]interface{}:
-			flat_child := Flatten(child)
-			for ck, cv := range flat_child {
+			flatChild := Flatten(child)
+			for ck, cv := range flatChild {
 				flat[k+"."+ck] = cv
 			}
 		case []interface{}:

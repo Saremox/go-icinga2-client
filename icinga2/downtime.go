@@ -31,7 +31,7 @@ func (s *WebClient) ListDowntimes(query QueryFilter) (downtimes []Downtime, err 
 		return
 	}
 	if resp.HttpResponse().StatusCode != 200 {
-		return []Downtime{}, fmt.Errorf("Did not get 200 OK")
+		return []Downtime{}, fmt.Errorf("did not get 200 OK")
 	}
 	for _, result := range dtResults.Results {
 		if result.Downtime.Type == "Downtime" {

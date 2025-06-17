@@ -32,7 +32,7 @@ func (s *WebClient) GetHostGroup(name string) (HostGroup, error) {
 		return HostGroup{}, err
 	}
 	if resp.HttpResponse().StatusCode != 200 {
-		return HostGroup{}, fmt.Errorf("Did not get 200 OK")
+		return HostGroup{}, fmt.Errorf("did not get 200 OK")
 	}
 	return hostGroupResults.Results[0].HostGroup, nil
 }
