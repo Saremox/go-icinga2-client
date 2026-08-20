@@ -34,7 +34,7 @@ func (s *WebClient) ProcessCheckResult(service Service, action Action) error {
 		service.HostName, service.Name)
 	action.Type = "Service"
 
-	resp, err := s.napping.Post(path, action, &results, &errmsg)
+	resp, err := s.httpSession.Post(path, action, &results, &errmsg)
 	if err != nil {
 		fmt.Printf("[PCR] Post failed: %v\n", err)
 		return err
