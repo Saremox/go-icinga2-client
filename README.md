@@ -4,33 +4,32 @@ Icinga2 API client.
 
 ## Getting started
 
-```
-import "github.com/vshn/go-icinga2-client/icinga2"
+```go
+import "github.com/saremox/go-icinga2-client/icinga2"
 
 icinga, err := icinga2.New(icinga2.WebClient{
-		URL:         "https://icinga.somewhere.com:5665,
-		Username:    "icinga",
-		Password:    "secret",
-		Debug:       true,
-		InsecureTLS: false,
-		DisableKeepAlives: false})
+		URL:               "https://icinga.somewhere.com:5665",
+		Username:           "icinga",
+		Password:           "secret",
+		Debug:              true,
+		DisableKeepAlives:  false})
 ```
 
 ### List hostgroups
 
-```
-hostGroups, err := icinga.ListHostGroups()
+```go
+hostGroups, err := icinga.ListHostGroups("")
 ```
 
 ### Create a hostgroup
 
-```
-icinga.CreateHostGroup(icinga2.HostGroup{"mygroup"})
+```go
+icinga.CreateHostGroup(icinga2.HostGroup{Name: "mygroup"})
 ```
 
 ### Delete a hostgroup
 
-```
+```go
 icinga.DeleteHostGroup("mygroup")
 ```
 

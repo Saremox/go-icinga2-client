@@ -190,7 +190,7 @@ func (s *WebClient) TestIcingaApi() error {
 	}
 
 	if resp.HttpResponse().StatusCode != http.StatusOK {
-		return err
+		return fmt.Errorf("did not get 200 OK, got %s", resp.HttpResponse().Status)
 	}
 
 	return nil
@@ -232,7 +232,7 @@ func (s *WebClient) handleResults(typ, path string, resp *napping.Response, resu
 	}
 
 	if resultReport != "" {
-		return fmt.Errorf("%s %s : %s\n", typ, path, resultReport)
+		return fmt.Errorf("%s %s : %s", typ, path, resultReport)
 	}
 
 	return oerr
