@@ -1,6 +1,6 @@
 module github.com/saremox/go-icinga2-client
 
-go 1.24.3
+go 1.25.1
 
 require gopkg.in/jmcvetta/napping.v3 v3.2.0
 
