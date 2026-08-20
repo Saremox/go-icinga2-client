@@ -27,7 +27,7 @@ func (hg HostGroup) GetVars() Vars {
 
 func (s *WebClient) GetHostGroup(name string) (HostGroup, error) {
 	var hostGroupResults HostGroupResults
-	resp, err := s.napping.Get(s.URL+"/v1/objects/hostgroups/"+name, nil, &hostGroupResults, nil)
+	resp, err := s.httpSession.Get(s.URL+"/v1/objects/hostgroups/"+name, nil, &hostGroupResults, nil)
 	if err != nil {
 		return HostGroup{}, err
 	}
@@ -47,7 +47,7 @@ func (s *WebClient) ListHostGroups(query string) (hostGroups []HostGroup, err er
 	var hostGroupResults HostGroupResults
 	hostGroups = []HostGroup{}
 
-	_, err = s.napping.Get(s.URL+"/v1/objects/hostgroups?"+query, nil, &hostGroupResults, nil)
+	_, err = s.httpSession.Get(s.URL+"/v1/objects/hostgroups?"+query, nil, &hostGroupResults, nil)
 	if err != nil {
 		return
 	}
@@ -61,7 +61,7 @@ func (s *WebClient) ListHostGroups(query string) (hostGroups []HostGroup, err er
 }
 
 func (s *WebClient) DeleteHostGroup(name string) (err error) {
-	_, err = s.napping.Delete(s.URL+"/v1/objects/hostgroups/"+name, nil, nil, nil)
+	_, err = s.httpSession.Delete(s.URL+"/v1/objects/hostgroups/"+name, nil, nil, nil)
 	return
 }
 

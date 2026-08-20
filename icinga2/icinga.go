@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"strings"
 	"sync"
-
-	"gopkg.in/jmcvetta/napping.v3"
 )
 
 type QueryFilter struct {
@@ -43,7 +41,7 @@ type Client interface {
 }
 
 type WebClient struct {
-	napping           napping.Session
+	httpSession       session
 	URL               string
 	Username          string
 	Password          string
@@ -111,7 +109,7 @@ func New(s WebClient) (*WebClient, error) {
 	}
 	client := &http.Client{Transport: transport}
 
-	s.napping = napping.Session{
+	s.httpSession = session{
 		Log:      s.Debug,
 		Client:   client,
 		Userinfo: url.UserPassword(s.Username, s.Password),
@@ -146,7 +144,7 @@ type Results struct {
 func (s *WebClient) CreateObject(path string, create interface{}) error {
 	var results, errmsg Results
 
-	resp, err := s.napping.Put(s.URL+"/v1/objects"+path, create, &results, &errmsg)
+	resp, err := s.httpSession.Put(s.URL+"/v1/objects"+path, create, &results, &errmsg)
 
 	return s.handleResults("create", path, resp, &results, &errmsg, err)
 }
@@ -154,23 +152,23 @@ func (s *WebClient) CreateObject(path string, create interface{}) error {
 func (s *WebClient) UpdateObject(path string, create interface{}) error {
 	var results, errmsg Results
 
-	resp, err := s.napping.Post(s.URL+"/v1/objects"+path, create, &results, &errmsg)
+	resp, err := s.httpSession.Post(s.URL+"/v1/objects"+path, create, &results, &errmsg)
 	return s.handleResults("update", path, resp, &results, &errmsg, err)
 }
 
-func (s *WebClient) FilteredQuery(url string, filter QueryFilter, result, errmsg interface{}) (*napping.Response, error) {
+func (s *WebClient) FilteredQuery(url string, filter QueryFilter, result, errmsg interface{}) (*Response, error) {
 	header := http.Header{
 		"Accept": []string{"application/json"},
 	}
-	req := napping.Request{
-		Method:  "GET",
+	req := request{
+		Method:  http.MethodGet,
 		Url:     url,
 		Header:  &header,
 		Payload: filter,
 		Result:  result,
 		Error:   errmsg,
 	}
-	return s.napping.Send(&req)
+	return s.httpSession.send(&req)
 }
 
 func (s *WebClient) SetIcingaUrl(url string) {
@@ -184,13 +182,13 @@ func (s *MockClient) SetIcingaUrl(url string) {
 func (s *WebClient) TestIcingaApi() error {
 	var results, errmsg Results
 
-	resp, err := s.napping.Get(s.URL+"/v1", nil, &results, &errmsg)
+	resp, err := s.httpSession.Get(s.URL+"/v1", nil, &results, &errmsg)
 	if err != nil {
 		return err
 	}
 
 	if resp.HttpResponse().StatusCode != http.StatusOK {
-		return err
+		return fmt.Errorf("did not get 200 OK, got %s", resp.HttpResponse().Status)
 	}
 
 	return nil
@@ -208,7 +206,7 @@ func (s *MockClient) TestIcingaApi() error {
 	return nil
 }
 
-func (s *WebClient) handleResults(typ, path string, resp *napping.Response, results, errmsg *Results, oerr error) error {
+func (s *WebClient) handleResults(typ, path string, resp *Response, results, errmsg *Results, oerr error) error {
 	var resultReport string
 
 	if oerr != nil {
@@ -232,7 +230,7 @@ func (s *WebClient) handleResults(typ, path string, resp *napping.Response, resu
 	}
 
 	if resultReport != "" {
-		return fmt.Errorf("%s %s : %s\n", typ, path, resultReport)
+		return fmt.Errorf("%s %s : %s", typ, path, resultReport)
 	}
 
 	return oerr
