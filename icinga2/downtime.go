@@ -26,7 +26,7 @@ func (s *WebClient) ListDowntimes(query QueryFilter) (downtimes []Downtime, err 
 	var dtResults DowntimeResults
 	downtimes = []Downtime{}
 
-	resp, err := s.FilteredQuery(s.URL+"/v1/objects/downtimes", query, &dtResults, nil)
+	resp, err := s.FilteredQuery(s.url()+"/v1/objects/downtimes", query, &dtResults, nil)
 	if err != nil {
 		return
 	}

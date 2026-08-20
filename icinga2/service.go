@@ -58,7 +58,7 @@ func (s *Service) FullName() string {
 
 func (s *WebClient) GetService(name string) (Service, error) {
 	var serviceResults ServiceResults
-	resp, err := s.httpSession.Get(s.URL+"/v1/objects/services/"+name, nil, &serviceResults, nil)
+	resp, err := s.httpSession.Get(s.url()+"/v1/objects/services/"+name, nil, &serviceResults, nil)
 	if err != nil {
 		return Service{}, err
 	}
@@ -81,7 +81,7 @@ func (s *WebClient) ListServices(query QueryFilter) (services []Service, err err
 	var serviceResults ServiceResults
 	services = []Service{}
 
-	resp, err := s.FilteredQuery(s.URL+"/v1/objects/services", query, &serviceResults, nil)
+	resp, err := s.FilteredQuery(s.url()+"/v1/objects/services", query, &serviceResults, nil)
 	if err != nil {
 		return
 	}
@@ -98,7 +98,7 @@ func (s *WebClient) ListServices(query QueryFilter) (services []Service, err err
 }
 
 func (s *WebClient) DeleteService(name string) (err error) {
-	_, err = s.httpSession.Delete(s.URL+"/v1/objects/services/"+name, &url.Values{"cascade": []string{"1"}}, nil, nil)
+	_, err = s.httpSession.Delete(s.url()+"/v1/objects/services/"+name, &url.Values{"cascade": []string{"1"}}, nil, nil)
 	return
 }
 

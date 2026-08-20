@@ -41,7 +41,14 @@ type Client interface {
 }
 
 type WebClient struct {
-	httpSession       session
+	httpSession session
+	mu          sync.RWMutex
+	// URL is the Icinga API base URL. It can be changed concurrently via
+	// SetIcingaUrl (e.g. by a caller failing over between Icinga
+	// instances) while other goroutines are issuing requests through this
+	// client, so it must not be read or written directly - use
+	// GetClientConfig/SetIcingaUrl, or the unexported url() helper from
+	// within this package, instead of touching the field itself.
 	URL               string
 	Username          string
 	Password          string
@@ -49,6 +56,14 @@ type WebClient struct {
 	DisableKeepAlives bool
 	Zone              string
 	TLSConfig         *tls.Config
+}
+
+// url returns the client's current Icinga API base URL, safe for
+// concurrent use alongside SetIcingaUrl.
+func (s *WebClient) url() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.URL
 }
 
 type ClientConfig struct {
@@ -63,7 +78,7 @@ type ClientConfig struct {
 
 func (s *WebClient) GetClientConfig() ClientConfig {
 	return ClientConfig{
-		URL:               s.URL,
+		URL:               s.url(),
 		Username:          s.Username,
 		Password:          s.Password,
 		Debug:             s.Debug,
@@ -100,7 +115,12 @@ type Object interface {
 	GetVars() Vars
 }
 
-func New(s WebClient) (*WebClient, error) {
+// New builds a WebClient from s, which carries the desired configuration
+// (URL, credentials, TLS settings, ...). s is taken by pointer, both
+// because WebClient contains a mutex guarding URL that must not be copied,
+// and because the returned *WebClient is the same instance as s: it is
+// configured in place and returned, rather than copied into a new value.
+func New(s *WebClient) (*WebClient, error) {
 	transport := &http.Transport{
 		TLSClientConfig:   s.TLSConfig,
 		DisableKeepAlives: s.DisableKeepAlives,
@@ -117,7 +137,7 @@ func New(s WebClient) (*WebClient, error) {
 
 	s.URL = strings.TrimRight(s.URL, "/")
 
-	return &s, nil
+	return s, nil
 }
 
 func NewMockClient() (c *MockClient) {
@@ -144,7 +164,7 @@ type Results struct {
 func (s *WebClient) CreateObject(path string, create interface{}) error {
 	var results, errmsg Results
 
-	resp, err := s.httpSession.Put(s.URL+"/v1/objects"+path, create, &results, &errmsg)
+	resp, err := s.httpSession.Put(s.url()+"/v1/objects"+path, create, &results, &errmsg)
 
 	return s.handleResults("create", path, resp, &results, &errmsg, err)
 }
@@ -152,7 +172,7 @@ func (s *WebClient) CreateObject(path string, create interface{}) error {
 func (s *WebClient) UpdateObject(path string, create interface{}) error {
 	var results, errmsg Results
 
-	resp, err := s.httpSession.Post(s.URL+"/v1/objects"+path, create, &results, &errmsg)
+	resp, err := s.httpSession.Post(s.url()+"/v1/objects"+path, create, &results, &errmsg)
 	return s.handleResults("update", path, resp, &results, &errmsg, err)
 }
 
@@ -172,6 +192,8 @@ func (s *WebClient) FilteredQuery(url string, filter QueryFilter, result, errmsg
 }
 
 func (s *WebClient) SetIcingaUrl(url string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.URL = url
 }
 
@@ -182,7 +204,7 @@ func (s *MockClient) SetIcingaUrl(url string) {
 func (s *WebClient) TestIcingaApi() error {
 	var results, errmsg Results
 
-	resp, err := s.httpSession.Get(s.URL+"/v1", nil, &results, &errmsg)
+	resp, err := s.httpSession.Get(s.url()+"/v1", nil, &results, &errmsg)
 	if err != nil {
 		return err
 	}
