@@ -48,7 +48,7 @@ func (h Host) GetNotesURL() string {
 
 func (s *WebClient) GetHost(name string) (Host, error) {
 	var hostResults HostResults
-	resp, err := s.httpSession.Get(s.URL+"/v1/objects/hosts/"+name, nil, &hostResults, nil)
+	resp, err := s.httpSession.Get(s.url()+"/v1/objects/hosts/"+name, nil, &hostResults, nil)
 	if err != nil {
 		return Host{}, err
 	}
@@ -70,7 +70,7 @@ func (s *WebClient) ListHosts(query string) (hosts []Host, err error) {
 	var hostResults HostResults
 	hosts = []Host{}
 
-	_, err = s.httpSession.Get(s.URL+"/v1/objects/hosts?"+query, nil, &hostResults, nil)
+	_, err = s.httpSession.Get(s.url()+"/v1/objects/hosts?"+query, nil, &hostResults, nil)
 	if err != nil {
 		return
 	}
@@ -84,7 +84,7 @@ func (s *WebClient) ListHosts(query string) (hosts []Host, err error) {
 }
 
 func (s *WebClient) DeleteHost(name string) (err error) {
-	_, err = s.httpSession.Delete(s.URL+"/v1/objects/hosts/"+name, &url.Values{"cascade": []string{"1"}}, nil, nil)
+	_, err = s.httpSession.Delete(s.url()+"/v1/objects/hosts/"+name, &url.Values{"cascade": []string{"1"}}, nil, nil)
 	return
 }
 

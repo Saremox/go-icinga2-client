@@ -27,7 +27,7 @@ type Action struct {
 func (s *WebClient) ProcessCheckResult(service Service, action Action) error {
 	var results, errmsg Results
 
-	path := s.URL + "/v1/actions/process-check-result"
+	path := s.url() + "/v1/actions/process-check-result"
 
 	// Update action struct with filters
 	action.Filter = fmt.Sprintf("host.name==\"%s\"&&service.name==\"%s\"",
