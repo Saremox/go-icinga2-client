@@ -161,12 +161,27 @@ func (s *session) logRequest(req *http.Request, payload interface{}) {
 	log.Println("--------------------------------------------------------------------------------")
 	log.Println("Method:", req.Method)
 	log.Println("URL:", req.URL)
-	log.Println("Header:", req.Header)
+	log.Println("Header:", redactAuthorization(req.Header))
 	if payload != nil {
 		if b, err := json.MarshalIndent(payload, "", "  "); err == nil {
 			log.Println("Payload:", string(b))
 		}
 	}
+}
+
+// redactAuthorization returns header unchanged if it carries no
+// Authorization value, or otherwise a copy of header with Authorization
+// replaced by a placeholder. The original request's own header must never
+// be mutated by this - it still needs the real Authorization value (e.g.
+// HTTP Basic Auth credentials) to actually reach the server; only what
+// gets written to the debug log is redacted.
+func redactAuthorization(header http.Header) http.Header {
+	if header.Get("Authorization") == "" {
+		return header
+	}
+	redacted := header.Clone()
+	redacted.Set("Authorization", "REDACTED")
+	return redacted
 }
 
 func (s *session) logResponse(resp *http.Response, body []byte) {
