@@ -36,7 +36,7 @@ func (s *WebClient) ProcessCheckResult(service Service, action Action) error {
 
 	resp, err := s.httpSession.Post(path, action, &results, &errmsg)
 	if err != nil {
-		fmt.Printf("[PCR] Post failed: %v\n", err)
+		s.httpSession.log("[PCR] Post failed:", err)
 		return err
 	}
 
